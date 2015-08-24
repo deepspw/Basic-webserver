@@ -1,4 +1,8 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from sqlalchemy import create_engine, and_, asc, desc, func
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import func
+from database_helper import *
 import cgi
 
 class webServerHandler(BaseHTTPRequestHandler):
@@ -27,6 +31,20 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(output)
                 print output
                 return
+            if self.path.endswith("/restaurant"):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                output = ""
+                output += "<html><body><ul>"                
+                for e in session.query(Restaurant.name).group_by(Restaurant.name).order_by(asc(Restaurant.name)):
+                    output += """<li><a href="%s">%s</li>""" % (str(e[0]), str(e[0]))
+                output += "</ul></body></html>"
+                self.wfile.write(output)
+                print output
+                return
+
+                
                 
         except IOError:
             self.send_error(404, "File Not Found %s" % self.path)
