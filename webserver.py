@@ -21,8 +21,10 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 output = ""
                 output += "<html><body>"
-                output += "<form action='/restaurants/new' method='POST' enctype='multipart/form-data'>"
-                output += "Restaurant name: <input type='text' name='newRestaurantName'>"
+                output += "<form action='/restaurants/new' method='POST'\
+                           enctype='multipart/form-data'>"
+                output += "Restaurant name: <input type='text'\
+                           name='newRestaurantName'>"
                 output += "<input type='submit' value='Submit'>"
                 output += "</form>"
                 output += "</body></html>"
@@ -36,7 +38,8 @@ class webServerHandler(BaseHTTPRequestHandler):
                 output = ""
                 output += "<html><body>"
                 output += "<a href='/restaurants/new'>Create new restaurant</a>"
-                for e in session.query(Restaurant.name).group_by(Restaurant.name).order_by(asc(Restaurant.name)):
+                for e in session.query(Restaurant.name).group_by\
+                    (Restaurant.name).order_by(asc(Restaurant.name)):
                     output += """<ul>%s""" % str(e[0])
                     output += """<li><a href="edit">Edit</a>"""
                     output += """<li><a href="delete">Delete</a>"""
@@ -53,7 +56,9 @@ class webServerHandler(BaseHTTPRequestHandler):
                 
                 output = ""
                 output += "<html><body>Hello!</body></html>"
-                output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                output += '''<form method='POST' enctype='multipart/form-data'\
+                    action='/hello'><h2>What would you like me to say?</h2><input name="message"\
+                    type="text" ><input type="submit" value="Submit"> </form>'''
                 self.wfile.write(output)
                 print output
                 return
@@ -65,8 +70,11 @@ class webServerHandler(BaseHTTPRequestHandler):
                 
                 output = ""
                 output += "<html><body>&#161Hola <a href = '/hello' >\
-                Back to Hello</a></body></html>"
-                output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                    Back to Hello</a></body></html>"
+                output += '''<form method='POST' enctype='multipart/form-data'\
+                    action='/hello'><h2>What would you like me to say?</h2>\
+                    <input name="message" type="text" ><input type="submit" \
+                    value="Submit"> </form>'''
                 self.wfile.write(output)
                 print output
                 return
@@ -78,7 +86,7 @@ class webServerHandler(BaseHTTPRequestHandler):
            
     def do_POST(self):
         try:
-        
+            # Create post in database
             if self.path.endswith('/restaurants/new'):
                 self.send_response(301)
                 self.send_header('Content-type', 'text/html')
@@ -110,7 +118,10 @@ class webServerHandler(BaseHTTPRequestHandler):
                 output += "<html><body>"
                 output += "<h2> Okay, how about this: </h2>"
                 output += "<h1> %s </h1>" % messagecontent[0]
-                output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                output += '''<form method='POST' enctype='multipart/form-data'\
+                    action='/hello'><h2>What would you like me to say?</h2>\
+                    <input name="message" type="text" >
+                    <input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
