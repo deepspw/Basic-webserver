@@ -22,7 +22,25 @@ class webServerHandler(BaseHTTPRequestHandler):
     def do_GET(self):
     
         try:
-        
+            if self.path.endswith("/edit"):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                output = ""
+                output += "<html>"
+                output += bhead
+                output += "<body>"
+                output += "<form action='/edit' method='POST'\
+                           enctype='multipart/form-data'>"
+                output += "Rename restaurant: <input type='text'\
+                           name='newRestaurantName'>"
+                output += "<input type='submit' value='Submit'>"
+                output += "</form>"
+                output += "</body></html>"
+                self.wfile.write(output)
+                return
+                
+
             if self.path.endswith("/restaurants/new"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -50,10 +68,12 @@ class webServerHandler(BaseHTTPRequestHandler):
                 output += bhead
                 output += "<body>"
                 output += "<a href='/restaurants/new'>Create new restaurant</a>"
-                for e in session.query(Restaurant.name).group_by\
+                for e in session.query(Restaurant.name, Restaurant.id).group_by\
                     (Restaurant.name).order_by(asc(Restaurant.name)):
+                    editName = str(e[0])
+                    editID = str(e[1])
                     output += """<ul><h3>%s</h3>""" % str(e[0])
-                    output += """<li><a href="edit">Edit</a>"""
+                    output += """<li><a href="%s/edit">Edit</a>""" % str(e[1]) # edit id
                     output += """<li><a href="delete">Delete</a>"""
                     output += "</ul>"
                 output += "</body></html>"
@@ -117,6 +137,26 @@ class webServerHandler(BaseHTTPRequestHandler):
                     newRestaurant = Restaurant(name=messagecontent[0])
                     session.add(newRestaurant)
                     session.commit()
+            
+            if self.path.endswith('/edit'): 
+                print "fish man"
+                self.send_response(301)
+                self.send_header('Content-type', 'text/html')
+                self.send_header('Location','/restaurants')
+                self.end_headers()
+                
+                ctype, pdict = cgi.parse_header(
+                    self.headers.getheader('Content-type', 'text/html')) # Get contents of header name
+                if ctype == 'multipart/form-data':
+                    fields = cgi.parse_multipart(self.rfile, pdict)
+                    messagecontent = fields.get('newRestaurantName')
+                    currentName = session.query(Restaurant.name, Restaurant.id).filter_by(id=editID).one()
+                    print currentName 
+                    currentName.name = messagecontent
+                    session.add(currentName) # Rename not working
+                    session.commit()
+                
+                
                     
             if self.path.endswith('/hello'):
                 self.send_response(301)
