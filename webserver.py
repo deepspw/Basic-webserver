@@ -9,6 +9,14 @@ from sqlalchemy.sql import func
 ## Create session for DB connection.
 from database_helper import *
 
+bhead = """
+        <head>
+            <link href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+            <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+            <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+        </head>
+        """
 
 class webServerHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -20,7 +28,9 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 output = ""
-                output += "<html><body>"
+                output += "<html>"
+                output += bhead
+                output += "<body>"
                 output += "<form action='/restaurants/new' method='POST'\
                            enctype='multipart/form-data'>"
                 output += "Restaurant name: <input type='text'\
@@ -36,11 +46,13 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'text/html') 
                 self.end_headers()
                 output = ""
-                output += "<html><body>"
+                output += "<html>"
+                output += bhead
+                output += "<body>"
                 output += "<a href='/restaurants/new'>Create new restaurant</a>"
                 for e in session.query(Restaurant.name).group_by\
                     (Restaurant.name).order_by(asc(Restaurant.name)):
-                    output += """<ul>%s""" % str(e[0])
+                    output += """<ul><h3>%s</h3>""" % str(e[0])
                     output += """<li><a href="edit">Edit</a>"""
                     output += """<li><a href="delete">Delete</a>"""
                     output += "</ul>"
@@ -55,7 +67,9 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 
                 output = ""
-                output += "<html><body>Hello!</body></html>"
+                output += "<html>"
+                output += bhead
+                output += "<body>Hello!</body></html>"
                 output += '''<form method='POST' enctype='multipart/form-data'\
                     action='/hello'><h2>What would you like me to say?</h2><input name="message"\
                     type="text" ><input type="submit" value="Submit"> </form>'''
@@ -69,7 +83,9 @@ class webServerHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 
                 output = ""
-                output += "<html><body>&#161Hola <a href = '/hello' >\
+                output += "<html>"
+                output += bhead
+                output += "<body>&#161Hola <a href = '/hello' >\
                     Back to Hello</a></body></html>"
                 output += '''<form method='POST' enctype='multipart/form-data'\
                     action='/hello'><h2>What would you like me to say?</h2>\
@@ -115,7 +131,9 @@ class webServerHandler(BaseHTTPRequestHandler):
                     messagecontent = fields.get('message') # stores the content of message.
 
                 output = ""
-                output += "<html><body>"
+                output += "<html>"
+                output += bhead
+                output += "<body>"
                 output += "<h2> Okay, how about this: </h2>"
                 output += "<h1> %s </h1>" % messagecontent[0]
                 output += '''<form method='POST' enctype='multipart/form-data'\
