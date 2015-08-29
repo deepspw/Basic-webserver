@@ -9,108 +9,128 @@ from sqlalchemy.sql import func
 ## Create session for DB connection.
 from database_helper import *
 
-bhead = """
+class generalStyling():
+    """
+    generalStyling takes the page specific stylings
+    and the global page styling and puts them together
+    cleanly.
+    """
+    def __init__(self):
+        self.output = (
+        """
         <head>
             <link href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet">
             <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap-theme.min.css">
             <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
             <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+            <title>Catalogue Project</title>
         </head>
-        """
-
+        <body>
+            %s
+        </body>        
+        """ )
+        
+    def styler(self, pageSpecific):
+        output = self.output % pageSpecific
+        return output
+        
+        
 class webServerHandler(BaseHTTPRequestHandler):
+    """
+    webServerHandler inherits from the python BaseHTTPRequestHandler library
+    in order to do http requests.
+    """
     def do_GET(self):
     
         try:
+        
+            ## EDIT
             if self.path.endswith("/edit"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                output = ""
-                output += "<html>"
-                output += bhead
-                output += "<body>"
-                output += "<form action='/edit' method='POST'\
-                           enctype='multipart/form-data'>"
-                output += "Rename restaurant: <input type='text'\
-                           name='newRestaurantName'>"
-                output += "<input type='submit' value='Submit'>"
-                output += "</form>"
-                output += "</body></html>"
+                output = generalStyling().styler(
+                    """
+                       <form action='/edit' method='POST'
+                       enctype='multipart/form-data'>
+                       Rename restaurant: <input type='text'
+                       name='newRestaurantName'>
+                       <input type='submit' value='Submit'>
+                       </form>
+                    """)
                 self.wfile.write(output)
                 return
                 
-
+            ## NEW
             if self.path.endswith("/restaurants/new"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                output = ""
-                output += "<html>"
-                output += bhead
-                output += "<body>"
-                output += "<form action='/restaurants/new' method='POST'\
-                           enctype='multipart/form-data'>"
-                output += "Restaurant name: <input type='text'\
-                           name='newRestaurantName'>"
-                output += "<input type='submit' value='Submit'>"
-                output += "</form>"
-                output += "</body></html>"
+                output = generalStyling().styler(
+                    """
+                        <form action='/restaurants/new' method ='POST'
+                        enctype='multipart/form-data'>
+                        Restaurant name: <input type='text'
+                        name='newRestaurantName'>
+                        <input type='submit' value='Submit'>
+                        </form>
+                    """)
                 self.wfile.write(output)
                 return
                 
+            ## LIST RESTAURANTS
             if self.path.endswith("/restaurants"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html') 
                 self.end_headers()
-                output = ""
-                output += "<html>"
-                output += bhead
-                output += "<body>"
-                output += "<a href='/restaurants/new'>Create new restaurant</a>"
+                pageSpecific = ""
                 for e in session.query(Restaurant.name, Restaurant.id).group_by\
                     (Restaurant.name).order_by(asc(Restaurant.name)):
                     editName = str(e[0])
                     editID = str(e[1])
-                    output += """<ul><h3>%s</h3>""" % str(e[0])
-                    output += """<li><a href="%s/edit">Edit</a>""" % str(e[1]) # edit id
-                    output += """<li><a href="delete">Delete</a>"""
-                    output += "</ul>"
-                output += "</body></html>"
+                    pageSpecific += (
+                        """
+                            <ul><h3>%s</h3>
+                            <li><a href="%s/edit">Edit</a>
+                            <li><a href="delete">Delete</a>
+                            </ul>
+                        """) % (str(e[0]), str(e[1]))
+                output = generalStyling().styler(pageSpecific)
                 self.wfile.write(output)
                 print output
                 return
                 
+            ## HELLO
             if self.path.endswith("/hello"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 
-                output = ""
-                output += "<html>"
-                output += bhead
-                output += "<body>Hello!</body></html>"
-                output += '''<form method='POST' enctype='multipart/form-data'\
-                    action='/hello'><h2>What would you like me to say?</h2><input name="message"\
-                    type="text" ><input type="submit" value="Submit"> </form>'''
+                output = generalStyling().styler(
+                """ <h3>Hello!</h3>
+                    <form method='POST' enctype='multipart/form-data'
+                    action='/hello'><h2>What would you like me to say?</h2><input name="message"
+                    type="text" ><input type="submit" value="Submit"> </form>
+                """)
                 self.wfile.write(output)
                 print output
                 return
                 
+            ## HOLA
             if self.path.endswith("/hola"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 
-                output = ""
-                output += "<html>"
-                output += bhead
-                output += "<body>&#161Hola <a href = '/hello' >\
+                output = generalStyling().styler(
+                    """
+                    <body>&#161Hola <a href = '/hello' >
                     Back to Hello</a></body></html>"
-                output += '''<form method='POST' enctype='multipart/form-data'\
-                    action='/hello'><h2>What would you like me to say?</h2>\
-                    <input name="message" type="text" ><input type="submit" \
-                    value="Submit"> </form>'''
+                    <form method='POST' enctype='multipart/form-data'
+                    action='/hello'><h2>What would you like me to say?</h2>
+                    <input name="message" type="text" ><input type="submit"
+                    value="Submit"> </form>
+                    """)
                 self.wfile.write(output)
                 print output
                 return
@@ -139,7 +159,6 @@ class webServerHandler(BaseHTTPRequestHandler):
                     session.commit()
             
             if self.path.endswith('/edit'): 
-                print "fish man"
                 self.send_response(301)
                 self.send_header('Content-type', 'text/html')
                 self.send_header('Location','/restaurants')
@@ -172,7 +191,6 @@ class webServerHandler(BaseHTTPRequestHandler):
 
                 output = ""
                 output += "<html>"
-                output += bhead
                 output += "<body>"
                 output += "<h2> Okay, how about this: </h2>"
                 output += "<h1> %s </h1>" % messagecontent[0]
