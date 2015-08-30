@@ -43,6 +43,26 @@ class webServerHandler(BaseHTTPRequestHandler):
     def do_GET(self):
     
         try:
+            ## DELETE
+            if self.path.endswith("/delete"):
+                restaurantIDPath = self.path.split("/")[2]
+                myRestaurantQuery = session.query(Restaurant).filter_by(id =
+                    restaurantIDPath).one()
+                if myRestaurantQuery:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/html')
+                    self.end_headers()
+                    output = generalStyling().styler(
+                        """
+                        <form action='/restaurants/%s/delete'
+                        method='POST' enctype='multipart/form-data'>
+                        Delete Restaurant? <input type="submit" name='deleteRestaurant'
+                        value='Submit'>
+                        </form>
+                        """) % restaurantIDPath
+                    print output
+                self.wfile.write(output)
+                return
         
             ## EDIT
             if self.path.endswith("/edit"):
@@ -95,9 +115,9 @@ class webServerHandler(BaseHTTPRequestHandler):
                         """
                             <ul><h3>%s</h3>
                             <li><a href="/restaurants/%s/edit">Edit</a>
-                            <li><a href="delete">Delete</a>
+                            <li><a href="/restaurants/%s/delete">Delete</a>
                             </ul>
-                        """) % (str(e[0]), str(e[1]))
+                        """) % (str(e[0]), (str(e[1])), str(e[1]))
                 output = generalStyling().styler(pageSpecific)
                 self.wfile.write(output)
                 print output
@@ -145,6 +165,26 @@ class webServerHandler(BaseHTTPRequestHandler):
            
     def do_POST(self):
         try:
+            if self.path.endswith('/delete'):
+                ctype, pdict = cgi.parse_header(
+                    self.headers.getheader('content-type'))
+                if ctype == "multipart/form-data":
+                    fields = cgi.parse_multipart(self.rfile, pdict)
+                    messagecontent = fields.get('deleteRestaurant')
+                    restaurantIDPath = self.path.split('/')[2]
+                    myRestaurantQuery = session.query(Restaurant).filter_by(
+                    id=restaurantIDPath).one()
+                if messagecontent:
+                    print "$$$$$$$$$$$$$$$$$$$$$"
+                    session.delete(myRestaurantQuery)
+                    session.commit()
+                    self.send_response(301)
+                    self.send_header('Content-type', 'text/html')
+                    self.send_header('Location', '/restaurants')
+                    self.end_headers()
+                 
+                    
+                    
             if self.path.endswith('/edit'):
                 ctype, pdict = cgi.parse_header(
                     self.headers.getheader('content-type'))
